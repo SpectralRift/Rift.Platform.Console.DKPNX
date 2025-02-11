@@ -15,5 +15,3 @@ This module can be integrated into the **SpectralRift Engine** to enable support
 ## Dependencies
 
 Ensure the necessary platform SDK and libraries are available before building the module. devkitPRO is required for the NX SDK.
-
----
