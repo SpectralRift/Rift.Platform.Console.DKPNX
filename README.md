@@ -1,6 +1,6 @@
 # NX Support Module
 
-This module provides platform-specific implementations for the **Nintendo Switch (NX)** in the **SpectralRift Engine** through the devkitPRO SDK. It includes threading, window management, and input handling tailored for the Switch platform.
+This module provides platform-specific implementations for the **Nintendo Switch (NX)** Game Console in the **SpectralRift Engine** through the devkitPRO SDK. It includes threading, window management, and input handling tailored for the Switch platform.
 
 ## Features
 
