@@ -1,16 +1,20 @@
 #include <Engine/Platform/NX/NX_Window.hpp>
 #include <Engine/Platform/Universal/Graphics/U_EGL_Context.hpp>
 
+#include <Engine/Runtime/Logger.hpp>
+
 #include <switch.h>
 
 namespace engine::platform::nx {
+    static runtime::Logger g_LoggerNXWindow("NXWindow");
+    
     bool NXWindow::Create() {
         h_Window = nwindowGetDefault();
 
         h_GraphicsContext = std::make_unique<universal::UEGLContext>(this);
 
         if (!h_GraphicsContext->Create()) {
-            printf("NXWindow: Failed to create the graphical context!\n");
+            g_LoggerNXWindow.Log(runtime::LOG_LEVEL_ERROR, "Failed to create a valid EGL context!\n");
             return false;
         }
 

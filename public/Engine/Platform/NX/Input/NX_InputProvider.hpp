@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <Engine/Core/Runtime/IThread.hpp>
-#include <Engine/Core/Runtime/Input/IInputDevice.hpp>
+#include <Engine/Input/IInputDevice.hpp>
 
 namespace engine::platform::nx {
     struct NXControllerDevice;

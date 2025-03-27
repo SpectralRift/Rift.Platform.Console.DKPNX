@@ -2,11 +2,11 @@
 
 #include <map>
 
-#include <Engine/Core/Runtime/Input/IInputDevice.hpp>
+#include <Engine/Input/IInputDevice.hpp>
 #include <Engine/Core/Math/Vector2.hpp>
 
 namespace engine::platform::nx {
-    struct NXTouchDevice : public core::runtime::input::ITouchDevice {
+    struct NXTouchDevice : public input::IInputDevice {
         NXTouchDevice() {}
 
         bool Initialize() override;
@@ -15,21 +15,21 @@ namespace engine::platform::nx {
 
         void Poll() override;
 
-        bool HasTouchPoint(int point) override;
-
-        core::math::Vector2 GetTouchPoint(int point) override;
+//        bool HasTouchPoint(int point) override;
+//
+//        core::math::Vector2 GetTouchPoint(int point) override;
 
         std::string GetName() const override {
             return "Nintendo Switch Touchscreen";
         }
 
-        core::runtime::input::InputDeviceType GetType() const override {
-            return core::runtime::input::InputDeviceType::INPUT_DEVICE_TYPE_TOUCH;
-        }
+//        core::runtime::input::InputDeviceType GetType() const override {
+//            return core::runtime::input::InputDeviceType::INPUT_DEVICE_TYPE_TOUCH;
+//        }
 
-        int GetMaxTouchPoints() override {
-            return 16;
-        }
+//        int GetMaxTouchPoints() override {
+//            return 16;
+//        }
 
         int GetPlayerId() override {
             return 0;

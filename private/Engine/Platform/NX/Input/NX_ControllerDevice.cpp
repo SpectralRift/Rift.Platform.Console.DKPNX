@@ -1,17 +1,19 @@
 #define SHOW_PRIVATE_API
 
 #include <Engine/Platform/NX/Input/NX_ControllerDevice.hpp>
-#include <Engine/Platform/NX/Input/NX_InputKeys.hpp>
-#include <Engine/Core/Runtime/Input/InputManager.hpp>
-#include <Engine/Core/Runtime/Input/InputEvent.hpp>
 
-#include <cstdio>
+#include <Engine/Input/InputManager.hpp>
+
+#include <Engine/Runtime/Logger.hpp>
+#include <Engine/Core/Hashing/FNV.hpp>
 
 namespace engine::platform::nx {
+    static runtime::Logger g_LoggerNXControllerDevice("NXControllerDevice");
+    
     NXControllerDevice::NXControllerDevice(HidNpadIdType padId) : b_IsConnected(false), m_PadId(padId) {}
 
     bool NXControllerDevice::Initialize() {
-        printf("NXControllerDevice: Initializing controller device for player %i...\n", m_PadId + 1);
+        g_LoggerNXControllerDevice.Log(runtime::LOG_LEVEL_DEBUG, "Initializing controller device for player %i...", m_PadId + 1);
 
         // if this represents Player 1, we configure it so that it allows Handheld mode as well
         if (m_PadId == HidNpadIdType_No1) {
@@ -33,7 +35,7 @@ namespace engine::platform::nx {
 
         b_IsConnected = padIsConnected(&m_LastState);
         if(!b_IsConnected) {
-            printf("NXControllerDevice: Player %i is not connected!\n", m_PadId + 1);
+            g_LoggerNXControllerDevice.Log(runtime::LOG_LEVEL_WARNING, "Player %i is not connected!", m_PadId + 1);
             return false;
         }
 
@@ -64,7 +66,7 @@ namespace engine::platform::nx {
 
         // if the pad style becomes mismatched, we "disconnect" to force controller reconfiguration in the provider!
         if (currentPadType != m_PadDeviceType || currentPadStyle != m_PadStyle) {
-            printf("NXControllerDevice: Controller type/style mismatch!\n");
+            g_LoggerNXControllerDevice.Log(runtime::LOG_LEVEL_WARNING, "Controller type/style mismatch!");
             b_IsConnected = false;
             return;
         }
@@ -89,26 +91,14 @@ namespace engine::platform::nx {
             m_LastLeftStick = m_LeftStick;
 
             // report new axis value for left stick
-            core::runtime::input::InputManager::Instance()->PushEvent(
-                    new core::runtime::input::GamepadAxisUpdateEvent(
-                            this,
-                            core::runtime::input::InputDeviceAxis::INPUT_DEVICE_AXIS_GAMEPAD_STICK_LEFT,
-                            m_LeftStick
-                    )
-            );
+//            input::InputManager::Instance()->PushAxisUpdate(engine::FNVConstHash("NX_JoyCon_LeftStick"), m_LeftStick);
         }
 
         if(m_LastRightStick != m_RightStick) {
             m_LastRightStick = m_RightStick;
 
             // report new axis value for right stick
-            core::runtime::input::InputManager::Instance()->PushEvent(
-                    new core::runtime::input::GamepadAxisUpdateEvent(
-                            this,
-                            core::runtime::input::InputDeviceAxis::INPUT_DEVICE_AXIS_GAMEPAD_STICK_RIGHT,
-                            m_RightStick
-                    )
-            );
+//            input::InputManager::Instance()->PushAxisUpdate(engine::FNVConstHash("NX_JoyCon_RightStick"), m_RightStick);
         }
 
         auto currentBtnState = padGetButtons(&m_LastState);
@@ -117,40 +107,32 @@ namespace engine::platform::nx {
 #define BTN_CHECK(nx_btn, nx_btn_type) \
             if (currentBtnState & nx_btn) { \
                 if(!(m_LastBtnState & nx_btn)) { \
-                    core::runtime::input::InputManager::Instance()->PushEvent( \
-                            new core::runtime::input::GamepadButtonDownEvent( \
-                                    this, nx_btn_type \
-                            ) \
-                    ); \
+                    input::InputManager::Instance()->PushKeyStateChange(engine::FNVConstHash(nx_btn_type), true); \
                 } \
             } else { \
                 if(m_LastBtnState & nx_btn) { \
-                    core::runtime::input::InputManager::Instance()->PushEvent( \
-                            new core::runtime::input::GamepadButtonUpEvent( \
-                                    this, nx_btn_type \
-                            ) \
-                    ); \
+                    input::InputManager::Instance()->PushKeyStateChange(engine::FNVConstHash(nx_btn_type), false); \
                 } \
             }
 
-            BTN_CHECK(HidNpadButton_A, NXInputKeys::NX_JoyCon_A);
-            BTN_CHECK(HidNpadButton_B, NXInputKeys::NX_JoyCon_B);
-            BTN_CHECK(HidNpadButton_X, NXInputKeys::NX_JoyCon_X);
-            BTN_CHECK(HidNpadButton_Y, NXInputKeys::NX_JoyCon_Y);
-            BTN_CHECK(HidNpadButton_L, NXInputKeys::NX_JoyCon_LeftBumper);
-            BTN_CHECK(HidNpadButton_R, NXInputKeys::NX_JoyCon_RightBumper);
-            BTN_CHECK(HidNpadButton_ZL, NXInputKeys::NX_JoyCon_LeftTrigger);
-            BTN_CHECK(HidNpadButton_ZR, NXInputKeys::NX_JoyCon_RightTrigger);
-            BTN_CHECK(HidNpadButton_AnySL, NXInputKeys::NX_JoyCon_SideLeft);
-            BTN_CHECK(HidNpadButton_AnySR, NXInputKeys::NX_JoyCon_SideRight);
-            BTN_CHECK(HidNpadButton_StickL, NXInputKeys::NX_JoyCon_LeftStick);
-            BTN_CHECK(HidNpadButton_StickR, NXInputKeys::NX_JoyCon_RightStick);
-            BTN_CHECK(HidNpadButton_Up, NXInputKeys::NX_JoyCon_DPad_Up);
-            BTN_CHECK(HidNpadButton_Down, NXInputKeys::NX_JoyCon_DPad_Down);
-            BTN_CHECK(HidNpadButton_Left, NXInputKeys::NX_JoyCon_DPad_Left);
-            BTN_CHECK(HidNpadButton_Right, NXInputKeys::NX_JoyCon_DPad_Right);
-            BTN_CHECK(HidNpadButton_Plus, NXInputKeys::NX_JoyCon_Plus);
-            BTN_CHECK(HidNpadButton_Minus, NXInputKeys::NX_JoyCon_Minus);
+            BTN_CHECK(HidNpadButton_A, "NX_JoyCon_A");
+            BTN_CHECK(HidNpadButton_B, "NX_JoyCon_B");
+            BTN_CHECK(HidNpadButton_X, "NX_JoyCon_X");
+            BTN_CHECK(HidNpadButton_Y, "NX_JoyCon_Y");
+            BTN_CHECK(HidNpadButton_L, "NX_JoyCon_LeftBumper");
+            BTN_CHECK(HidNpadButton_R, "NX_JoyCon_RightBumper");
+            BTN_CHECK(HidNpadButton_ZL, "NX_JoyCon_LeftTrigger");
+            BTN_CHECK(HidNpadButton_ZR, "NX_JoyCon_RightTrigger");
+            BTN_CHECK(HidNpadButton_AnySL, "NX_JoyCon_SideLeft");
+            BTN_CHECK(HidNpadButton_AnySR, "NX_JoyCon_SideRight");
+            BTN_CHECK(HidNpadButton_StickL, "NX_JoyCon_LeftStick");
+            BTN_CHECK(HidNpadButton_StickR, "NX_JoyCon_RightStick");
+            BTN_CHECK(HidNpadButton_Up, "NX_JoyCon_DPad_Up");
+            BTN_CHECK(HidNpadButton_Down, "NX_JoyCon_DPad_Down");
+            BTN_CHECK(HidNpadButton_Left, "NX_JoyCon_DPad_Left");
+            BTN_CHECK(HidNpadButton_Right, "NX_JoyCon_DPad_Right");
+            BTN_CHECK(HidNpadButton_Plus, "NX_JoyCon_Plus");
+            BTN_CHECK(HidNpadButton_Minus, "NX_JoyCon_Minus");
 
 #undef BTN_CHECK
 
@@ -162,21 +144,21 @@ namespace engine::platform::nx {
         return m_PadId;
     }
 
-    bool NXControllerDevice::HasAxis(core::runtime::input::InputDeviceAxis axis) const {
-        return true;
-    }
-
-    core::math::Vector2 NXControllerDevice::GetAxis(core::runtime::input::InputDeviceAxis axis) const {
-        switch(axis) {
-            case core::runtime::input::InputDeviceAxis::INPUT_DEVICE_AXIS_GAMEPAD_STICK_LEFT:
-                return m_LeftStick;
-            case core::runtime::input::InputDeviceAxis::INPUT_DEVICE_AXIS_GAMEPAD_STICK_RIGHT:
-                return m_RightStick;
-            default:
-                printf("NXControllerDevice: GetAxis - Invalid axis %i!\n", axis);
-                return {};
-        }
-    }
+//    bool NXControllerDevice::HasAxis(core::runtime::input::InputDeviceAxis axis) const {
+//        return true;
+//    }
+//
+//    core::math::Vector2 NXControllerDevice::GetAxis(core::runtime::input::InputDeviceAxis axis) const {
+//        switch(axis) {
+//            case core::runtime::input::InputDeviceAxis::INPUT_DEVICE_AXIS_GAMEPAD_STICK_LEFT:
+//                return m_LeftStick;
+//            case core::runtime::input::InputDeviceAxis::INPUT_DEVICE_AXIS_GAMEPAD_STICK_RIGHT:
+//                return m_RightStick;
+//            default:
+//                g_LoggerNXControllerDevice.Log(runtime::LOG_LEVEL_DEBUG, "GetAxis - Invalid axis %i!", axis);
+//                return {};
+//        }
+//    }
 
     std::string NXControllerDevice::GetName() const {
         auto playerIdText = "P" + std::to_string(m_PadId + 1);

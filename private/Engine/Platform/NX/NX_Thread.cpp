@@ -1,6 +1,9 @@
 #include <Engine/Platform/NX/NX_Thread.hpp>
+#include <Engine/Runtime/Logger.hpp>
 
 namespace engine::platform::nx {
+    static runtime::Logger g_LoggerNXThread("NXThread");
+
     NXThread::NXThread() : m_Thread{}, b_IsRunning(false) {}
 
     NXThread::~NXThread() {
@@ -11,13 +14,13 @@ namespace engine::platform::nx {
         if (b_IsRunning) return;
 
         if (!m_TaskFunc) {
-            printf("NXThread: No task function set for the thread\n");
+            g_LoggerNXThread.Log(runtime::LOG_LEVEL_ERROR, "No task function set for the thread");
             return;
         }
 
         Result rc = threadCreate(&m_Thread, ThreadFunction, this, nullptr, 0x4000, 0x3B, -2);
         if (R_FAILED(rc)) {
-            printf("NXThread: Failed to create thread\n");
+            g_LoggerNXThread.Log(runtime::LOG_LEVEL_ERROR, "Failed to create thread");
             return;
         }
 
@@ -25,7 +28,7 @@ namespace engine::platform::nx {
 
         rc = threadStart(&m_Thread);
         if (R_FAILED(rc)) {
-            printf("NXThread: Failed to start thread\n");
+            g_LoggerNXThread.Log(runtime::LOG_LEVEL_ERROR, "Failed to start thread");
             threadClose(&m_Thread);
             return;
         }
@@ -65,13 +68,13 @@ namespace engine::platform::nx {
         auto *thread = static_cast<NXThread *>(arg);
 
         if (thread) {
-            printf("NXThread: Begin TaskFunc for '%s'\n", thread->m_Name.c_str());
+            g_LoggerNXThread.Log(runtime::LOG_LEVEL_DEBUG, "Begin TaskFunc for '%s'", thread->m_Name.c_str());
 
             if (thread->m_TaskFunc) {
                 thread->m_TaskFunc();
             }
 
-            printf("NXThread: End TaskFunc for '%s'\n", thread->m_Name.c_str());
+            g_LoggerNXThread.Log(runtime::LOG_LEVEL_DEBUG, "End TaskFunc for '%s'", thread->m_Name.c_str());
 
             thread->b_IsRunning = false;
         }

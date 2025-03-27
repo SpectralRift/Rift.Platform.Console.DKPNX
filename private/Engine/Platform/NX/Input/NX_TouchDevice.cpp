@@ -3,8 +3,7 @@
 #include <switch.h>
 
 #include <Engine/Platform/NX/Input/NX_TouchDevice.hpp>
-#include <Engine/Core/Runtime/Input/InputManager.hpp>
-#include <Engine/Core/Runtime/Input/InputEvent.hpp>
+#include <Engine/Input/InputManager.hpp>
 
 namespace engine::platform::nx {
     bool NXTouchDevice::Initialize() {
@@ -31,26 +30,14 @@ namespace engine::platform::nx {
                     m_FingerPos.insert({state.touches[i].finger_id, pos});
 
                     // position is new in the list, so we consider this a touch start event
-                    core::runtime::input::InputManager::Instance()->PushEvent(
-                            new core::runtime::input::TouchStartEvent(
-                                    this,
-                                    (int) state.touches[i].finger_id,
-                                    pos
-                            )
-                    );
+                    input::InputManager::Instance()->PushTouchDown((int) state.touches[i].finger_id, pos);
                 } else {
                     if (m_FingerPos.at(state.touches[i].finger_id) != pos) {
                         m_FingerPos.at(state.touches[i].finger_id).x = pos.x;
                         m_FingerPos.at(state.touches[i].finger_id).y = pos.y;
 
                         // the position changed, so we signal it (touch drag event)
-                        core::runtime::input::InputManager::Instance()->PushEvent(
-                                new core::runtime::input::TouchDragEvent(
-                                        this,
-                                        (int) state.touches[i].finger_id,
-                                        pos
-                                )
-                        );
+                        input::InputManager::Instance()->PushTouchMove((int) state.touches[i].finger_id, pos);
                     }
                 }
             }
@@ -69,13 +56,7 @@ LBL_FINGER_CHECK:
                 }
 
                 // if the finger does not exist anymore, we push the touch end event
-                core::runtime::input::InputManager::Instance()->PushEvent(
-                        new core::runtime::input::TouchEndEvent(
-                                this,
-                                (int) it->first,
-                                it->second
-                        )
-                );
+                input::InputManager::Instance()->PushTouchUp((int) it->first, it->second);
 
                 // we remove the finger from the list and we continue iterating
                 it = m_FingerPos.erase(it);
@@ -83,15 +64,15 @@ LBL_FINGER_CHECK:
         }
     }
 
-    bool NXTouchDevice::HasTouchPoint(int point) {
-        return m_FingerPos.contains(point);
-    }
+//    bool NXTouchDevice::HasTouchPoint(int point) {
+//        return m_FingerPos.contains(point);
+//    }
 
-    core::math::Vector2 NXTouchDevice::GetTouchPoint(int point) {
-        if (point > GetMaxTouchPoints() ||!m_FingerPos.contains(point)) {
-            return {0, 0};
-        }
-
-        return m_FingerPos.at(point);
-    }
+//    core::math::Vector2 NXTouchDevice::GetTouchPoint(int point) {
+//        if (point > GetMaxTouchPoints() ||!m_FingerPos.contains(point)) {
+//            return {0, 0};
+//        }
+//
+//        return m_FingerPos.at(point);
+//    }
 }

@@ -1,22 +1,24 @@
-#include <cstdio>
 #include <switch.h>
 
 #include <Engine/Platform/NX/Input/NX_InputProvider.hpp>
 #include <Engine/Platform/NX/Input/NX_ControllerDevice.hpp>
 
-#include <Engine/Core/Runtime/Input/InputManager.hpp>
+#include <Engine/Input/InputManager.hpp>
 #include <Engine/Core/Platform.hpp>
+#include <Engine/Runtime/Logger.hpp>
 
 namespace engine::platform::nx {
+    static runtime::Logger g_LoggerNXInputProvider("NXInputProvider");
+    
     void NXInputProvider::Init() {
-        printf("NXInputProvider: Initializing Input Provider for NX Platform...\n");
+        g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_DEBUG, "Initializing Input Provider for NX Platform...\n");
 
         // single player by default
         SetMaxLocalPlayers(1);
 
         m_CtrlDetectThread = core::Platform::CreateThread();
         if (!m_CtrlDetectThread) {
-            printf("NXInputProvider: Could not create controller detection thread!\n");
+            g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_ERROR, "Could not create controller detection thread!\n");
             return;
         }
 
@@ -24,7 +26,7 @@ namespace engine::platform::nx {
         m_CtrlDetectThread->SetTaskFunc(&NXInputProvider::ProcessTask, this);
         m_CtrlDetectThread->Start();
 
-        printf("NXInputProvider: Input Provider for NX Platform initialized successfully!\n");
+        g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_INFO, "Input Provider for NX Platform initialized successfully!\n");
 
         b_IsInit = true;
     }
@@ -42,7 +44,7 @@ namespace engine::platform::nx {
 
             for(const auto& d: m_PlayerDevices) {
                 if(!d->IsConnected()) {
-                    printf("NXInputProvider: Player %i disconnected!\n", d->GetPlayerId());
+                    g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_DEBUG, "Player %i disconnected!\n", d->GetPlayerId());
 
                     // I think I should call ReconfigureLocalMP from the main thread.
                     ReconfigureLocalMP();
@@ -67,7 +69,7 @@ namespace engine::platform::nx {
     }
 
     void NXInputProvider::ReconfigureLocalMP() {
-        printf("NXInputProvider: ReconfigureLocalMP called!\n");
+        g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_DEBUG, "ReconfigureLocalMP called!\n");
 
         // show config only for more than one player
         if(m_MaxLocalPlayers > 1) {
@@ -83,7 +85,7 @@ namespace engine::platform::nx {
         // if we have devices allocated, we unregister them and delete them
         if(!m_PlayerDevices.empty()) {
             for(auto& d : m_PlayerDevices) {
-                core::runtime::input::InputManager::Instance()->UnregisterDevice(d.get());
+                input::InputManager::Instance()->UnregisterDevice(d.get());
             }
 
             m_PlayerDevices.clear();
@@ -95,12 +97,12 @@ namespace engine::platform::nx {
 
             // when you switch controllers, you have to keep trying until you get a valid hit. usually it takes under 16 tries to fetch a controller
             while(tries < 16) {
-                printf("NXInputProvider: Trying to initialize controller for player %i... (try %i)\n", i + 1, tries);
+                g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_DEBUG, "Trying to initialize controller for player %i... (try %i)\n", i + 1, tries);
 
                 if(c->Initialize()) {
-                    printf("NXInputProvider: Controller for player %i initialized!\n", i + 1);
+                    g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_INFO, "Controller for player %i initialized!\n", i + 1);
 
-                    core::runtime::input::InputManager::Instance()->RegisterDevice(c.get());
+                    input::InputManager::Instance()->RegisterDevice(c.get());
                     m_PlayerDevices.push_back(std::move(c));
                     break;
                 }

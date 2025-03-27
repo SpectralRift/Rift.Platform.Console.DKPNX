@@ -9,9 +9,10 @@ add_library(
         private/Engine/Platform/NX/NX_Platform.cpp
         private/Engine/Platform/NX/NX_Window.cpp
         private/Engine/Platform/NX/NX_Thread.cpp
+        private/Engine/Platform/NX/NX_Mutex.cpp
         private/Engine/Platform/NX/Input/NX_TouchDevice.cpp
+        private/Engine/Platform/NX/Input/NX_InlineVirtualKeyboard.cpp
         private/Engine/Platform/NX/Input/NX_InputProvider.cpp
-        private/Engine/Platform/NX/Input/NX_InputKeys.cpp
         private/Engine/Platform/NX/Input/NX_ControllerDevice.cpp
 )
 
@@ -28,7 +29,7 @@ pkg_search_module(GL_API REQUIRED glapi)
 include_directories(${GL_API_INCLUDE_DIRS} ${DRM_NOUVEAU_INCLUDE_DIRS})
 link_directories(${GL_API_LIBRARY_DIRS} ${DRM_NOUVEAU_LIBRARY_DIRS})
 
-target_link_libraries(Rift_Platform_Console_NX RiftEngine_Core_Runtime RiftEngine_Backend_OpenGL ${GL_API_LIBRARIES} ${DRM_NOUVEAU_LIBRARIES} nx)
+target_link_libraries(Rift_Platform_Console_NX RiftEngine_Core_Runtime Rift_Input Rift_Runtime_Logging RiftEngine_Backend_OpenGL ${GL_API_LIBRARIES} ${DRM_NOUVEAU_LIBRARIES} nx)
 
 set(GL_BACKEND_USE_LOADER OFF CACHE BOOL "NX Platform Requirement: Don't use GLAD to load OpenGL, perform static link instead" FORCE)
 set(GL_BACKEND_USE_EGL_LOADER OFF CACHE BOOL "NX Platform Requirement: Don't use GLAD to load EGL, perform static link instead" FORCE)
