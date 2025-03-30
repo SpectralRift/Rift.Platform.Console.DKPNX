@@ -8,7 +8,9 @@
 #include <Engine/Platform/NX/Input/NX_InputProvider.hpp>
 
 #include <Engine/Core/Platform.hpp>
+
 #include <Engine/Input/InputKeyRepository.hpp>
+#include <Engine/Input/InputAxisRepository.hpp>
 #include <Engine/Input/InputManager.hpp>
 
 namespace engine::core::Platform {
@@ -60,6 +62,7 @@ namespace engine::core::Platform {
 
         // register input keys
         auto &repoItx = input::InputKeyRepository::Instance();
+        auto &axisRepoItx = input::InputAxisRepository::Instance();
 
         repoItx.AddKey("NX_JoyCon_A");
         repoItx.AddKey("NX_JoyCon_B");
@@ -68,6 +71,7 @@ namespace engine::core::Platform {
 
         repoItx.AddKey("NX_JoyCon_LeftStick");
         repoItx.AddKey("NX_JoyCon_RightStick");
+
         repoItx.AddKey("NX_JoyCon_LeftBumper");
         repoItx.AddKey("NX_JoyCon_RightBumper");
 
@@ -83,6 +87,11 @@ namespace engine::core::Platform {
         repoItx.AddKey("NX_JoyCon_DPad_Down");
         repoItx.AddKey("NX_JoyCon_DPad_Left");
         repoItx.AddKey("NX_JoyCon_DPad_Right");
+
+        axisRepoItx.AddAxis("NX_JoyCon_LeftStickX");
+        axisRepoItx.AddAxis("NX_JoyCon_LeftStickY");
+        axisRepoItx.AddAxis("NX_JoyCon_RightStickX");
+        axisRepoItx.AddAxis("NX_JoyCon_RightStickY");
     }
 
     void PreEngineInit() {

@@ -91,14 +91,16 @@ namespace engine::platform::nx {
             m_LastLeftStick = m_LeftStick;
 
             // report new axis value for left stick
-//            input::InputManager::Instance()->PushAxisUpdate(engine::FNVConstHash("NX_JoyCon_LeftStick"), m_LeftStick);
+            input::InputManager::Instance()->PushAxisChange(engine::FNVConstHash("NX_JoyCon_LeftStickX"), m_LeftStick.x);
+            input::InputManager::Instance()->PushAxisChange(engine::FNVConstHash("NX_JoyCon_LeftStickY"), m_LeftStick.y);
         }
 
         if(m_LastRightStick != m_RightStick) {
             m_LastRightStick = m_RightStick;
 
             // report new axis value for right stick
-//            input::InputManager::Instance()->PushAxisUpdate(engine::FNVConstHash("NX_JoyCon_RightStick"), m_RightStick);
+            input::InputManager::Instance()->PushAxisChange(engine::FNVConstHash("NX_JoyCon_RightStickX"), m_RightStick.x);
+            input::InputManager::Instance()->PushAxisChange(engine::FNVConstHash("NX_JoyCon_RightStickY"), m_RightStick.y);
         }
 
         auto currentBtnState = padGetButtons(&m_LastState);
