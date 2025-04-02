@@ -10,6 +10,7 @@ add_library(
         private/Engine/Platform/NX/NX_Window.cpp
         private/Engine/Platform/NX/NX_Thread.cpp
         private/Engine/Platform/NX/NX_Mutex.cpp
+        private/Engine/Platform/NX/NX_EngineMain.cpp
         private/Engine/Platform/NX/Input/NX_TouchDevice.cpp
         private/Engine/Platform/NX/Input/NX_InlineVirtualKeyboard.cpp
         private/Engine/Platform/NX/Input/NX_InputProvider.cpp

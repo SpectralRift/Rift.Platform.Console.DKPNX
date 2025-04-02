@@ -58,6 +58,15 @@ namespace engine::platform::nx {
 
         if(m_CtrlDetectThread) {
             m_CtrlDetectThread->Stop();
+            m_CtrlDetectThread->Join();
+        }
+
+        if(!m_PlayerDevices.empty()) {
+            for(auto& d : m_PlayerDevices) {
+                input::InputManager::Instance()->UnregisterDevice(d.get());
+            }
+
+            m_PlayerDevices.clear();
         }
     }
 
@@ -69,6 +78,10 @@ namespace engine::platform::nx {
     }
 
     void NXInputProvider::ReconfigureLocalMP() {
+        if(m_CtrlDetectThread && !m_CtrlDetectThread->IsRunning()) {
+            return;
+        }
+
         g_LoggerNXInputProvider.Log(runtime::LOG_LEVEL_DEBUG, "ReconfigureLocalMP called!\n");
 
         // show config only for more than one player

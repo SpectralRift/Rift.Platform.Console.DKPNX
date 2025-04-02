@@ -22,7 +22,10 @@ namespace engine::platform::nx {
     }
 
     void NXWindow::Destroy() {
-        // do not destroy the window!
+        if(h_GraphicsContext) {
+            h_GraphicsContext->Destroy();
+            h_GraphicsContext = nullptr;
+        }
     }
 
     void NXWindow::SetTitle(std::string_view title) {

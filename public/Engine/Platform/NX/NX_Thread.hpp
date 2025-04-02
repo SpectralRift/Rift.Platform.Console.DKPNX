@@ -31,6 +31,7 @@ namespace engine::platform::nx {
 
         Thread m_Thread;
         bool b_IsRunning;
+        bool b_IsCloseRequested;
         std::string m_Name;
         std::function<void()> m_TaskFunc;
     };

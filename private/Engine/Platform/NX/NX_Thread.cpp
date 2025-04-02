@@ -4,7 +4,7 @@
 namespace engine::platform::nx {
     static runtime::Logger g_LoggerNXThread("NXThread");
 
-    NXThread::NXThread() : m_Thread{}, b_IsRunning(false) {}
+    NXThread::NXThread() : m_Thread{}, b_IsRunning(false), b_IsCloseRequested(false) {}
 
     NXThread::~NXThread() {
         Stop();
@@ -25,6 +25,7 @@ namespace engine::platform::nx {
         }
 
         b_IsRunning = true;
+        b_IsCloseRequested = false;
 
         rc = threadStart(&m_Thread);
         if (R_FAILED(rc)) {
@@ -36,8 +37,8 @@ namespace engine::platform::nx {
 
     void NXThread::Stop() {
         if (b_IsRunning) {
-            b_IsRunning = false;
-            threadWaitForExit(&m_Thread);
+            b_IsCloseRequested = true;
+            Join();
             threadClose(&m_Thread);
         }
     }
@@ -49,7 +50,7 @@ namespace engine::platform::nx {
     }
 
     bool NXThread::IsRunning() const {
-        return b_IsRunning;
+        return b_IsRunning && !b_IsCloseRequested;
     }
 
     void NXThread::SetName(std::string_view name) {
