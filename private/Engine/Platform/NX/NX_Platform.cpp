@@ -7,7 +7,7 @@
 #include <Engine/Platform/NX/Input/NX_InlineVirtualKeyboard.hpp>
 #include <Engine/Platform/NX/Input/NX_InputProvider.hpp>
 #include <Engine/Core/Platform.hpp>
-#include <Engine/Core/Runtime/DesktopHost.hpp>
+#include <Engine/Core/Runtime/BasicAppHost.hpp>
 #include <Engine/Input/InputManager.hpp>
 
 std::shared_ptr<engine::platform::nx::NXTouchDevice> g_NXTouchDevice;
@@ -32,7 +32,7 @@ namespace engine::core::Platform {
     }
 
     std::unique_ptr<runtime::AppHost> GetSuitableHost() {
-        return std::make_unique<runtime::DesktopHost>();
+        return std::make_unique<runtime::BasicAppHost>();
     }
 
     std::unique_ptr<runtime::IWindow> CreateAppWindow() {
