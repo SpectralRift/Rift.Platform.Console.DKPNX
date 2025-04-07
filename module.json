@@ -1,0 +1,21 @@
+{
+  "module": {
+    "name": "Rift.Platform.Console.DKPNX",
+    "category": "Platform Targets",
+    "version": "0.0.1",
+    "author": "r0neko",
+    "description": "Nintendo Switch Support using the devkitPRO SDK",
+    "homepage": "https://github.com/SpectralRift/Rift.Platform.Console.DKPNX",
+    "type": "platformTarget",
+    "cmakeProject": "Rift_Platform_Console_DKPNX"
+  },
+  "providedTargets": [
+    "nx"
+  ],
+  "dependencies": [
+    "Rift.Backend.OpenGL",
+    "Rift.Runtime.Logging",
+    "Rift.Core.Runtime",
+    "Rift.Input"
+  ]
+}
